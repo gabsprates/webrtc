@@ -5,7 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WebRTC - Real-Time Communication</title>
     <link rel="stylesheet" href="./style.css" />
-    <script src="./app.js" async></script>
   </head>
-  <body></body>
+  <body>
+    <table>
+      <tr>
+        <td>
+          <video id="video"></video>
+        </td>
+        <td>
+          <ul id="media-devices"></ul>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <pre id="log"></pre>
+        </td>
+      </tr>
+    </table>
+
+    <script src="./app.js" async></script>
+  </body>
 </html>
