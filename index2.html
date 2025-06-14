@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC P2P Sync Demo</title>
+</head>
+
+<body>
+    <h1>WebRTC P2P Sync Demo</h1>
+    <p>Share the generated URL with your peer to connect!</p>
+    <fieldset>
+        <h2>Peer A (Offerer)</h2>
+        <button id="generateOffer">Generate Offer</button>
+        <p>Generated Offer URL:</p>
+        <input type="text" id="offerUrl" readonly style="width: 100%;" />
+        <h3>Waiting for answer...</h3>
+
+        <button id="sendSenderMessage">send sender message</button>
+    </fieldset>
+
+    <fieldset>
+        <h2>Peer B (Receiver)</h2>
+        <p>Enter Offer URL:</p>
+        <input type="text" id="offerInput" style="width: 100%;" />
+        <button id="connectPeer">Connect</button>
+        <p>Generated Answer URL:</p>
+        <input type="text" id="answerUrl" readonly style="width: 100%;" />
+
+        <button id="sendReceiverMessage">send receiver message</button>
+    </fieldset>
+
+
+
+    <script>
+        let localConnection;
+        let remoteConnection;
+        let sendChannel;
+        let receiveChannel;
+        let sendSenderMessage = document.querySelector("#sendSenderMessage");
+        let sendReceiverMessage = document.querySelector("#sendReceiverMessage");
+
+        sendSenderMessage.onclick = () => {
+            if (!sendChannel) return;
+            sendChannel.send("sending message");
+        }
+
+        sendReceiverMessage.onclick = () => {
+            if (!receiveChannel) return;
+            receiveChannel.send("receive message");
+        }
+
+        // Peer A: Generate Offer
+        document.getElementById('generateOffer').onclick = async () => {
+            localConnection = new RTCPeerConnection();
+
+            // Data channel for communication
+            sendChannel = localConnection.createDataChannel('sync');
+            sendChannel.onopen = () => console.log("Data channel open");
+            sendChannel.onmessage = (event) => console.log("Received message from peer:", event.data);
+
+            const offer = await localConnection.createOffer();
+            await localConnection.setLocalDescription(offer);
+
+            // Wait for ICE gathering
+            await new Promise(resolve => {
+                if (localConnection.iceGatheringState === "complete") return resolve();
+                localConnection.onicegatheringstatechange = () => {
+                    if (localConnection.iceGatheringState === "complete") resolve();
+                };
+            });
+
+            const offerData = {
+                sdp: localConnection.localDescription,
+                ice: []
+            };
+
+            const offerString = btoa(JSON.stringify(offerData));
+            document.getElementById('offerUrl').value = window.location.origin + '#offer=' + offerString;
+        };
+
+        // Peer B: Connect using Offer URL
+        document.getElementById('connectPeer').onclick = async () => {
+            const offerString = document.getElementById('offerInput').value.split('#offer=')[1];
+            const offerData = JSON.parse(atob(offerString));
+
+            remoteConnection = new RTCPeerConnection();
+
+            remoteConnection.ondatachannel = (event) => {
+                receiveChannel = event.channel;
+                receiveChannel.onmessage = (event) => console.log("Received message from peer:", event.data);
+            };
+
+            await remoteConnection.setRemoteDescription(offerData.sdp);
+            const answer = await remoteConnection.createAnswer();
+            await remoteConnection.setLocalDescription(answer);
+
+            // Wait for ICE gathering
+            await new Promise(resolve => {
+                if (remoteConnection.iceGatheringState === "complete") return resolve();
+                remoteConnection.onicegatheringstatechange = () => {
+                    if (remoteConnection.iceGatheringState === "complete") resolve();
+                };
+            });
+
+            const answerData = {
+                sdp: remoteConnection.localDescription,
+                ice: []
+            };
+
+            const answerString = btoa(JSON.stringify(answerData));
+            document.getElementById('answerUrl').value = window.location.origin + '#answer=' + answerString;
+        };
+
+        // Peer A: Handle Answer from Peer B
+        window.addEventListener('hashchange', async () => {
+            const answerString = window.location.hash.split('#answer=')[1];
+            if (answerString) {
+                const answerData = JSON.parse(atob(answerString));
+                await localConnection.setRemoteDescription(answerData.sdp);
+            }
+        });
+
+
+    </script>
+</body>
+
+</html>
