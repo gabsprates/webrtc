@@ -77,12 +77,12 @@
             };
 
             const offerString = btoa(JSON.stringify(offerData));
-            document.getElementById('offerUrl').value = window.location.origin + '#offer=' + offerString;
+            document.getElementById('offerUrl').value = offerString;
         };
 
         // Peer B: Connect using Offer URL
         document.getElementById('connectPeer').onclick = async () => {
-            const offerString = document.getElementById('offerInput').value.split('#offer=')[1];
+            const offerString = document.getElementById('offerInput').value;
             const offerData = JSON.parse(atob(offerString));
 
             remoteConnection = new RTCPeerConnection();
@@ -110,7 +110,7 @@
             };
 
             const answerString = btoa(JSON.stringify(answerData));
-            document.getElementById('answerUrl').value = window.location.origin + '#answer=' + answerString;
+            document.getElementById('answerUrl').value = window.location.href + '#answer=' + answerString;
         };
 
         // Peer A: Handle Answer from Peer B
