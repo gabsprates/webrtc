@@ -55,12 +55,16 @@
 
         sendSenderMessage.onclick = () => {
             if (!sendChannel) return;
-            sendChannel.send("Peer A: " + new Date().toJSON());
+            const message = "Peer A: " + new Date().toJSON();
+            sendChannel.send(message);
+            logMessage(message);
         }
 
         sendReceiverMessage.onclick = () => {
             if (!receiveChannel) return;
-            receiveChannel.send("Peer B: " +  + new Date().toJSON());
+            const message = "Peer B: " + new Date().toJSON();
+            receiveChannel.send(message);
+            logMessage(message);
         }
 
         // Peer A: Generate Offer
