@@ -110,7 +110,7 @@
             };
 
             const answerString = btoa(JSON.stringify(answerData));
-            document.getElementById('answerUrl').value = window.location.href + '#answer=' + answerString;
+            document.getElementById('answerUrl').value = window.location.origin + window.location.pathname + '#answer=' + answerString;
         };
 
         const initialUrl = new URL(window.location.href)
