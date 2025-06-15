@@ -11,7 +11,7 @@
     <h1>WebRTC P2P Sync Demo</h1>
     <p>Share the generated URL with your peer to connect!</p>
     <fieldset>
-        <h2>Peer A (Offerer)</h2>
+        <legend>Peer A (Offerer)</legend>
         <button id="generateOffer">Generate Offer</button>
         <p>Generated Offer URL:</p>
         <a href="" id="offerUrl"></a>
@@ -21,7 +21,7 @@
     </fieldset>
 
     <fieldset>
-        <h2>Peer B (Receiver)</h2>
+        <legend>Peer B (Receiver)</legend>
         <p>Enter Offer Code:</p>
         <input type="text" id="offerInput" style="width: 100%;" />
         <button id="connectPeer">Connect</button>
@@ -32,8 +32,8 @@
     </fieldset>
 
     <fieldset>
-        <legeng>logs</legeng>
-        <pre id="log"></pre>
+        <legend>logs</legend>
+        <pre id="logs"></pre>
     </section>
 
 
@@ -46,7 +46,7 @@
         let sendReceiverMessage = document.querySelector("#sendReceiverMessage");
 
         const logs = [];
-        const logView = document.querySelector("#sendSenderMessage");
+        const logView = document.querySelector("#logs");
 
         const logMessage = (data) => {
             logs.push(data);
