@@ -78,7 +78,7 @@
 
             const offerString = btoa(JSON.stringify(offerData));
             document.getElementById('offerUrl').textContent = offerData.sdp;
-            document.getElementById('offerUrl').href = offerString;
+            document.getElementById('offerUrl').href = window.location.origin + window.location.pathname + "#offer=" + offerString;
         };
 
         // Peer B: Connect using Offer URL
@@ -114,8 +114,8 @@
         };
 
         const initialUrl = new URL(window.location.href)
-        if (initialUrl.hash.startsWith("#answer=")) {
-            connectionWithOffer(window.location.hash.split('#answer=')[1]);
+        if (initialUrl.hash.startsWith("#offer=")) {
+            connectionWithOffer(window.location.hash.split('#offer=')[1]);
         } else {
             document.getElementById('connectPeer').onclick = () => connectWithOffer(document.getElementById('offerInput').value);
         }
