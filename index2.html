@@ -31,6 +31,10 @@
         <button id="sendReceiverMessage">send receiver message</button>
     </fieldset>
 
+    <fieldset>
+        <legeng>logs</legeng>
+        <pre id="log"></pre>
+    </section>
 
 
     <script>
@@ -41,14 +45,22 @@
         let sendSenderMessage = document.querySelector("#sendSenderMessage");
         let sendReceiverMessage = document.querySelector("#sendReceiverMessage");
 
+        const logs = [];
+        const logView = document.querySelector("#sendSenderMessage");
+
+        const logMessage = (data) => {
+            logs.push(data);
+            logView.innerHTML = logs.join('\n');
+        }
+
         sendSenderMessage.onclick = () => {
             if (!sendChannel) return;
-            sendChannel.send("sending message");
+            sendChannel.send("Peer A: " + new Date().toJSON());
         }
 
         sendReceiverMessage.onclick = () => {
             if (!receiveChannel) return;
-            receiveChannel.send("receive message");
+            receiveChannel.send("Peer B: " +  + new Date().toJSON());
         }
 
         // Peer A: Generate Offer
@@ -58,7 +70,7 @@
             // Data channel for communication
             sendChannel = localConnection.createDataChannel('sync');
             sendChannel.onopen = () => console.log("Data channel open");
-            sendChannel.onmessage = (event) => console.log("Received message from peer:", event.data);
+            sendChannel.onmessage = (event) => logMessage(event.data);
 
             const offer = await localConnection.createOffer();
             await localConnection.setLocalDescription(offer);
@@ -89,7 +101,7 @@
 
             remoteConnection.ondatachannel = (event) => {
                 receiveChannel = event.channel;
-                receiveChannel.onmessage = (event) => console.log("Received message from peer:", event.data);
+                receiveChannel.onmessage = (event) => logMessage(event.data);
             };
 
             await remoteConnection.setRemoteDescription(offerData.sdp);
