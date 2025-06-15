@@ -82,7 +82,7 @@
         };
 
         // Peer B: Connect using Offer URL
-        async connectWithOffer (offerString = "") => {
+        const connectWithOffer = async (offerString = "") => {
             const offerData = JSON.parse(atob(offerString));
 
             remoteConnection = new RTCPeerConnection();
