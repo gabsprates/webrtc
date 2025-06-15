@@ -14,15 +14,15 @@
         <h2>Peer A (Offerer)</h2>
         <button id="generateOffer">Generate Offer</button>
         <p>Generated Offer URL:</p>
-        <input type="text" id="offerUrl" readonly style="width: 100%;" />
-        <h3>Waiting for answer...</h3>
+        <a href="" id="offerUrl"></a>
+        <h3 id="waitingAnswer">Waiting for answer...</h3>
 
         <button id="sendSenderMessage">send sender message</button>
     </fieldset>
 
     <fieldset>
         <h2>Peer B (Receiver)</h2>
-        <p>Enter Offer URL:</p>
+        <p>Enter Offer Code:</p>
         <input type="text" id="offerInput" style="width: 100%;" />
         <button id="connectPeer">Connect</button>
         <p>Generated Answer URL:</p>
@@ -77,12 +77,12 @@
             };
 
             const offerString = btoa(JSON.stringify(offerData));
-            document.getElementById('offerUrl').value = offerString;
+            document.getElementById('offerUrl').textContent = offerData.sdp;
+            document.getElementById('offerUrl').href = offerString;
         };
 
         // Peer B: Connect using Offer URL
-        document.getElementById('connectPeer').onclick = async () => {
-            const offerString = document.getElementById('offerInput').value;
+        async connectWithOffer (offerString = "") => {
             const offerData = JSON.parse(atob(offerString));
 
             remoteConnection = new RTCPeerConnection();
@@ -113,12 +113,20 @@
             document.getElementById('answerUrl').value = window.location.href + '#answer=' + answerString;
         };
 
+        const initialUrl = new URL(window.location.href)
+        if (initialUrl.hash.startsWith("#answer=")) {
+            connectionWithOffer(window.location.hash.split('#answer=')[1]);
+        } else {
+            document.getElementById('connectPeer').onclick = () => connectWithOffer(document.getElementById('offerInput').value);
+        }
+
         // Peer A: Handle Answer from Peer B
         window.addEventListener('hashchange', async () => {
             const answerString = window.location.hash.split('#answer=')[1];
             if (answerString) {
                 const answerData = JSON.parse(atob(answerString));
                 await localConnection.setRemoteDescription(answerData.sdp);
+                document.querySelector("#waitingAnswer").textContent = "connected";
             }
         });
 
